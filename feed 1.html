@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Customer Feedback</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="dress.html">Dresses</a>
+      <a href="feedback.html">Feedback</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <section>
+    <h2>We value your opinion 💬</h2>
+    <p>Please fill this form and/or record your feedback.</p>
+
+    <!-- Google Form -->
+    <iframe src="YOUR_GOOGLE_FORM_EMBED_LINK" width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+  </section>
+
+  <section>
+    <h2>🎙 Voice Feedback</h2>
+    <button id="startBtn">Start Recording</button>
+    <button id="stopBtn" disabled>Stop Recording</button>
+    <a id="downloadLink" style="display:none;">Download Feedback</a>
+  </section>
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+
+    const startBtn = document.getElementById("startBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const downloadLink = document.getElementById("downloadLink");
+
+    startBtn.onclick = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = e => {
+        if (e.data.size > 0) {
+          audioChunks.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+        const url = URL.createObjectURL(audioBlob);
+        downloadLink.href = url;
+        downloadLink.download = "feedback_" + Date.now() + ".webm";
+        downloadLink.style.display = "block";
+        downloadLink.textContent = "Download Feedback";
+      };
+
+      mediaRecorder.start();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    };
+
+    stopBtn.onclick = () => {
+      mediaRecorder.stop();
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    };
+  </script>
+</body>
+</html>
